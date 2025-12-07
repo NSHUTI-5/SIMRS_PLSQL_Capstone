@@ -54,6 +54,8 @@ GRANT UNLIMITED TABLESPACE TO SIMS_user;
 <img width="523" height="178" alt="USER CREATION" src="https://github.com/user-attachments/assets/2f485f2c-9ce2-47d3-b3b2-821e851c8b0e" />
 
 
+
+
 ## Files in This Phase
 - `GRPA_27129_Dorothy_SIMS_Database_Creation.sql`: Main creation script.
 - `PHASE_IV_README.md`: This file.
