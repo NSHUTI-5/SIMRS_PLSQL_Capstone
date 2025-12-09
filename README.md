@@ -294,6 +294,7 @@ END;
 
 <img width="1375" height="687" alt="procedures creation 1" src="https://github.com/user-attachments/assets/23fdfe55-19d3-44d7-bf81-be6fa0d426d5" />
 
+
 4) BULK Operation (BULK COLLECT + FORALL)
 CREATE OR REPLACE PROCEDURE proc_bulk_insert_reorders(p_product_ids IN SYS.ODCINUMBERLIST)
 IS
@@ -321,11 +322,14 @@ BEGIN
 END proc_bulk_insert_reorders;
 /
 
+
+
 <img width="1567" height="740" alt="4) BULK Operation" src="https://github.com/user-attachments/assets/c11d2448-a22c-4a9e-853b-fe58739b99f8" />
 
 5) Window-function analytics example (for Phase VI testing)
 
 <img width="1120" height="720" alt="5) Window-function analytics example" src="https://github.com/user-attachments/assets/63207a8f-6248-403c-a854-f9361d3723e5" />
+
 
 6) Package: inventory_pkg
 -- PACKAGE SPEC
@@ -337,6 +341,7 @@ CREATE OR REPLACE PACKAGE inventory_pkg IS
 END inventory_pkg;
 /
 <img width="1528" height="776" alt="6) Package inventory" src="https://github.com/user-attachments/assets/2c9ab4a0-cb16-459f-9923-70acc1b6ac51" />
+
 
 -- PACKAGE BODY
 CREATE OR REPLACE PACKAGE BODY inventory_pkg IS
@@ -376,6 +381,8 @@ CREATE OR REPLACE PACKAGE BODY inventory_pkg IS
 
 END inventory_pkg;
 /
+
+
 <img width="1460" height="644" alt="-- PACKAGE BODY" src="https://github.com/user-attachments/assets/46c4b829-94ca-4d9e-8321-eee4146122af" />
 
 Test procedure proc_add_stock_entry:
@@ -392,6 +399,8 @@ BEGIN
   proc_add_stock_entry(v_product_id, 'IN', 10, 'tester');
 END;
 /
+
+
 <img width="1237" height="655" alt="Test procedure proc_add_stock_entry" src="https://github.com/user-attachments/assets/af047ee6-506d-4d86-a600-d1b77808c04f" />
 1️⃣ Test proc_update_product_price
 
@@ -407,6 +416,8 @@ BEGIN
   proc_update_product_price(v_product_id, 9999.50);
 END;
 /
+
+
 <img width="1223" height="679" alt="1️⃣ Test proc_update_product_price" src="https://github.com/user-attachments/assets/a5a13920-b068-48d2-ae90-d91d0d65424d" />
 
 DECLARE
@@ -425,11 +436,13 @@ EXCEPTION
     DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 /
+
 <img width="1064" height="664" alt="2️⃣ Test proc_delete_supplier_safe" src="https://github.com/user-attachments/assets/ef99f2d2-69f5-4d90-8fda-2330ad522185" />
 BEGIN
   proc_reorder_generate(2);
 END;
 /
+
 <img width="1055" height="663" alt="3️⃣ Test proc_reorder_generate" src="https://github.com/user-attachments/assets/f3ac92d8-dfd3-488f-8c76-09029aca69be" />
 SELECT * FROM reorder_log WHERE ROWNUM <= 10;
 <img width="1401" height="761" alt="Check results" src="https://github.com/user-attachments/assets/caaec665-4cb9-41f6-b489-9415930166be" />
@@ -446,8 +459,35 @@ BEGIN
   proc_update_min_quantity(v_product_id, 25);
 END;
 /
+2️⃣ Test Package inventory_pkg.generate_reorders and check audit log
+BEGIN
+  -- Generate reorders for a given supplier/product (example 2)
+  inventory_pkg.generate_reorders(2);
+END;
+/
+
+-- Check the audit log
+SELECT * 
+FROM audit_log
+WHERE ROWNUM <= 10
+ORDER BY attempt_date DESC;
+<img width="1423" height="786" alt="2️⃣ Test Package inventory_pkg generate_reorders and check audit log" src="https://github.com/user-attachments/assets/291ea370-077f-46e4-9bf9-8f8f3a316c61" />
 
 
+Phase VII: Implementation Plan
+
+CREATE TABLE public_holidays (
+    holiday_date DATE PRIMARY KEY,
+    description VARCHAR2(100)
+);
+INSERT INTO public_holidays (holiday_date, description)
+VALUES (TO_DATE('2025-12-25','YYYY-MM-DD'), 'Christmas');
+
+INSERT INTO public_holidays (holiday_date, description)
+VALUES (TO_DATE('2026-01-01','YYYY-MM-DD'), 'New Year'); 
+<img width="1172" height="715" alt="HOLIDAY MANAGEMENT" src="https://github.com/user-attachments/assets/9fff871e-2617-49a2-bc3c-8750cb757f22" /> 
+
+2️⃣ Audit Log Table
 
 
 
