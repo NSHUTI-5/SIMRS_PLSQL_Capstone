@@ -104,7 +104,7 @@ This logical design serves as blueprint for:
 4. Business rule implementation (Phase VII)
 
 
-# SIMRS_PLSQL_Capstone
+# SIMS_PLSQL_Capstone
 PL/SQL Capstone Project - Smart Inventory Monitoring &amp; Reordering System.
 
 #  PHASE_IV
