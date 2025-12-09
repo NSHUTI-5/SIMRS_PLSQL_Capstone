@@ -1,9 +1,5 @@
 # Phase III: Logical Database Design
 
-## Student: Dorothy
-## ID: 27129
-## Date: November 2025
-
 ## Overview
 This phase involves designing the logical data model for the Smart Inventory Monitoring System (SIMS) with a focus on normalization, data integrity, and Business Intelligence readiness.
 
