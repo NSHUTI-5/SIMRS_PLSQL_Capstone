@@ -487,7 +487,130 @@ INSERT INTO public_holidays (holiday_date, description)
 VALUES (TO_DATE('2026-01-01','YYYY-MM-DD'), 'New Year'); 
 <img width="1172" height="715" alt="HOLIDAY MANAGEMENT" src="https://github.com/user-attachments/assets/9fff871e-2617-49a2-bc3c-8750cb757f22" /> 
 
-2️⃣ Audit Log Table
+4️⃣ Restriction Check Function
+CREATE OR REPLACE FUNCTION check_dml_allowed
+RETURN BOOLEAN
+IS
+    v_today DATE := TRUNC(SYSDATE);
+    v_day_of_week VARCHAR2(10);
+    v_count NUMBER;
+BEGIN
+    v_day_of_week := TO_CHAR(v_today, 'DY', 'NLS_DATE_LANGUAGE=ENGLISH');
+
+    -- Check weekday
+    IF v_day_of_week IN ('MON', 'TUE', 'WED', 'THU', 'FRI') THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Check public holiday
+    SELECT COUNT(*) INTO v_count 
+    FROM public_holidays
+    WHERE holiday_date = v_today;
+
+    IF v_count > 0 THEN
+        RETURN FALSE;
+    END IF;
+
+    RETURN TRUE;
+END;
+/
+<img width="1537" height="754" alt="4️⃣ Restriction Check Function" src="https://github.com/user-attachments/assets/12aa46c1-9e8e-4917-a707-a2c05494f96e" />
+
+Compound Trigger
+CREATE OR REPLACE TRIGGER trg_products_compound
+FOR INSERT OR UPDATE OR DELETE ON products
+COMPOUND TRIGGER
+
+  -- Before Statement
+  BEFORE STATEMENT IS
+  BEGIN
+    DBMS_OUTPUT.PUT_LINE('Compound Trigger: Statement start');
+  END BEFORE STATEMENT;
+
+  -- After Each Row
+  AFTER EACH ROW IS
+  BEGIN
+    DBMS_OUTPUT.PUT_LINE('Compound Trigger: Row processed');
+  END AFTER EACH ROW;
+
+  -- After Statement
+  AFTER STATEMENT IS
+  BEGIN
+    DBMS_OUTPUT.PUT_LINE('Compound Trigger: Statement end');
+  END AFTER STATEMENT;
+
+END trg_products_compound;
+/
+<img width="1585" height="782" alt="Compound Trigger" src="https://github.com/user-attachments/assets/71bf4491-5f00-4615-a68a-2eb8f097bf47" />
+
+2️⃣ Audit Logging Procedure
+CREATE OR REPLACE PROCEDURE log_audit(
+    p_action_type IN VARCHAR2,
+    p_table_name  IN VARCHAR2,
+    p_status      IN VARCHAR2,
+    p_error_msg   IN VARCHAR2
+)
+IS
+BEGIN
+    INSERT INTO audit_log (
+        username, action_type, table_name, action_date, status, error_msg
+    )
+    VALUES (
+        USER, p_action_type, p_table_name, SYSTIMESTAMP, p_status, p_error_msg
+    );
+END;
+/
+Audit Logging Function
+
+CREATE OR REPLACE PROCEDURE log_audit(
+    p_action_type IN VARCHAR2,
+    p_table_name  IN VARCHAR2,
+    p_status      IN VARCHAR2,
+    p_error_msg   IN VARCHAR2
+)
+IS
+BEGIN
+    INSERT INTO audit_log (username, action_type, table_name, status, error_msg)
+    VALUES (USER, p_action_type, p_table_name, p_status, p_error_msg);
+END;
+/
+
+<img width="1168" height="638" alt="image" src="https://github.com/user-attachments/assets/ba727586-8ca9-4c35-a485-be581192d19d" />
+
+Test 1: Attempt INSERT on weekday (should fail)
+BEGIN
+    INSERT INTO products(product_name, current_quantity, min_quantity)
+    VALUES('Test Product Weekday', 10, 5);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Expected failure: ' || SQLERRM);
+END;
+/
+
+<img width="1413" height="680" alt="Test 1 Attempt INSERT on weekday (should fail)" src="https://github.com/user-attachments/assets/8777fbb0-5eed-479f-8d89-5271111bcc76" />
+
+Test 3: Attempt INSERT on public holiday
+
+-- Simulate by inserting into the holiday table today
+INSERT INTO public_holidays(holiday_date, description)
+VALUES(TRUNC(SYSDATE), 'Test Holiday');
+COMMIT;
+
+BEGIN
+    INSERT INTO products(product_name, current_quantity, min_quantity)
+    VALUES('Test Product Holiday', 15, 5);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Expected failure: ' || SQLERRM);
+END;
+/
+<img width="1262" height="759" alt="Test 3 Attempt INSERT on public holiday" src="https://github.com/user-attachments/assets/8db40acd-232f-4e03-8bdf-178747448631" />
+Test 2: Attempt INSERT on weekend
+BEGIN
+    INSERT INTO products(product_name, current_quantity, min_quantity)
+    VALUES('Test Product Weekend', 20, 5);
+END;
+/
 
 
 
